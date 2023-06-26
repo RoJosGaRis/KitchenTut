@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKitchenObjectParent
 {
     public static Player Instance {get; private set;}
-
+    
 
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
     public class OnSelectedCounterChangedEventArgs : EventArgs{
@@ -18,11 +18,13 @@ public class Player : MonoBehaviour
     [SerializeField]private float playerRadius = 0.7f, playerHeight = 2f, moveDistance, interactDistance = 2f;
     [SerializeField] private GameInput gameInput;
     [SerializeField] private LayerMask countersLayerMask;
+    [SerializeField] private Transform kitchenObjectHoldPoint;
     
 
     private bool isWalking;
     private Vector3 lastInteractDirection;
     private ClearCounter selectedCounter;
+    private KitchenObject kitchenObject;
 
     private void Awake(){
         if(Instance != null) Debug.LogError("There is more than one Player");
@@ -35,7 +37,7 @@ public class Player : MonoBehaviour
 
     private void GameInput_OnInteractAction(object sender, System.EventArgs e){
         if(selectedCounter != null){
-            selectedCounter.Interact();
+            selectedCounter.Interact(this);
         }
     }
     private void Update(){
@@ -85,8 +87,7 @@ public class Player : MonoBehaviour
         if(canMove) transform.position += moveDistance * moveDirection;
 
         isWalking = moveDirection != Vector3.zero;
-        
-        transform.forward = Vector3.Slerp(transform.forward, moveDirection, Time.deltaTime * 10f);
+        if(isWalking) transform.forward = Vector3.Slerp(transform.forward, moveDirection, Time.deltaTime * 10f);
     }
 
     public bool IsWalking(){
@@ -95,5 +96,25 @@ public class Player : MonoBehaviour
     private void SetSelectedCounter(ClearCounter selectedCounter){
         this.selectedCounter = selectedCounter;
         OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs{selectedCounter = selectedCounter});
+    }
+
+    public Transform GetKitchenObjectFollowTransform(){
+        return kitchenObjectHoldPoint;
+    }
+
+    public void SetKitchenObject(KitchenObject kitchenObject){
+        this.kitchenObject = kitchenObject;
+    }
+
+    public KitchenObject GetKitchenObject(){
+        return kitchenObject;
+    }
+
+    public void ClearKitchenObject(){
+        kitchenObject = null;
+    }
+
+    public bool HasKitchenObject(){
+        return kitchenObject != null;
     }
 }
