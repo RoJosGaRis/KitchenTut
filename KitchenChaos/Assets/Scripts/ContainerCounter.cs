@@ -5,13 +5,13 @@ using UnityEngine;
 
 public class ContainerCounter : BaseCounter
 {
-    public event EventHandler OnPLayerGrabbedObject;
+    public event EventHandler OnPlayerGrabbedObject;
     [SerializeField] private KitchenObjectSO kitchenObjectSO;
 
     public override void Interact(Player player){
         if(!player.HasKitchenObject()){
             KitchenObject.SpawnKitchenObject(kitchenObjectSO, player);
-            OnPLayerGrabbedObject?.Invoke(this, EventArgs.Empty);
+            OnPlayerGrabbedObject?.Invoke(this, EventArgs.Empty);
         }
     }
 
